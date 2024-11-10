@@ -19,7 +19,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.7.0-123.0.dev
+  sdk: ^3.0.0
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -40,6 +40,11 @@ dependencies:
   # hive: ^2.2.3 # Original Hive package
   # This is a community fork that supports WASM-GC.
   hive_ce: ^2.7.0+1
+
+  # Commonly used directories on host platform file systems, by Google (flutter.dev).
+  # Used to get a working storage path for Hive on Windows.
+  # https://pub.dev/packages/path_provider
+  path_provider: ^2.1.5
 
 dev_dependencies:
   flutter_test:
