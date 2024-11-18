@@ -55,14 +55,6 @@ class _MyHomePageState extends State<MyHomePage> {
   int _loadIntCounter = 0;
   double _loadDoubleCounter = 0.0;
 
-  // int _loadNotUsedInt = 1;
-  // double _loadNotUsedDouble = 1.0;
-  //
-  // Color _loadNotUsedColor = Colors.white;
-  // Color? _loadNotUsedNullableColor;
-  //
-  // ThemeMode _loadThemeMode = ThemeMode.light;
-
   Future<void> _incrementCounter() async {
     setState(() {
       _intCounterNullable = (_intCounterNullable ?? 0) + 1;
@@ -77,31 +69,15 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _loadCounters() async {
-    // These type conversions are only here to simulate the actual use case
-    // frm the Playground. Where a lot of keys are read, but only some contain
-    // exist and contain values.
-    // _loadNotUsedInt =
-    //     await widget.store.load(App.keyNotUsedInt, App.notUsedIntDefault);
-    // _loadNotUsedDouble =
-    //     await widget.store.load(App.keyNotUsedDouble, App.notUsedDoubleDefault);
-
-    // _loadNotUsedColor =
-    //     await widget.store.load(App.keyNotUsedColor, App.notUsedColorDefault);
-    // _loadNotUsedNullableColor = await widget.store
-    //     .load(App.keyNotUsedNullableColor, App.notUsedNullableColorDefault);
-    //
-    // _loadThemeMode =
-    //     await widget.store.load(App.keyThemeMode, App.defaultThemeMode);
-
     // Load the tested counters of int, int?, double and double? types.
+    _loadIntCounter = await widget.store.load(App.keyInt, App.intDefault);
     _loadIntCounterNullable =
         await widget.store.load(App.keyIntNullable, App.intDefaultNullable);
-    _loadDoubleCounterNullable = await widget.store
-        .load(App.keyDoubleNullable, App.doubleDefaultNullable);
-    // Doubles
-    _loadIntCounter = await widget.store.load(App.keyInt, App.intDefault);
+    //
     _loadDoubleCounter =
         await widget.store.load(App.keyDouble, App.doubleDefault);
+    _loadDoubleCounterNullable = await widget.store
+        .load(App.keyDoubleNullable, App.doubleDefaultNullable);
 
     setState(() {
       _intCounterNullable = _loadIntCounterNullable;
@@ -124,27 +100,21 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            const Text('\nCounters:',
+            const Text('\nValues:\nHit (+) to change and save values.',
                 style: TextStyle(fontWeight: FontWeight.bold)),
             Text('int nullable = $_intCounterNullable'),
             Text('double nullable = $_doubleCounterNullable'),
             Text('int = $_intCounter'),
             Text('double $_doubleCounter'),
-            const Text('\nLast load Counters:',
+            const Text('\nLast load values:',
                 style: TextStyle(fontWeight: FontWeight.bold)),
             Text('int nullable = $_loadIntCounterNullable'),
             Text('double nullable = $_loadDoubleCounterNullable'),
             Text('int = $_loadIntCounter'),
             Text('double = $_loadDoubleCounter\n'),
-            // const Text('\n'),
-            // Text('notUsedInt = $_loadNotUsedInt'),
-            // Text('notUsedDouble = $_loadNotUsedDouble'),
-            // Text('notUsedColor = $_loadNotUsedColor'),
-            // Text('notUsedNullableColor = $_loadNotUsedNullableColor'),
-            // Text('notUsedThemeMode = $_loadThemeMode'),
             FilledButton(
               onPressed: _loadCounters,
-              child: const Text('Load Counters'),
+              child: const Text('Load Values from DB'),
             ),
           ],
         ),

@@ -3,10 +3,8 @@ import 'package:hive_ce/hive.dart';
 
 import '../app.dart';
 import '../utils/app_data_dir/app_data_dir.dart';
+import '../utils/same_types.dart';
 import 'theme_service.dart';
-import 'theme_service_hive_adapters.dart';
-
-const bool _debug = true;
 
 /// A [StorageService] implementation that stores and retrieves settings
 /// locally using the package Hive: https://pub.dev/packages/hive
@@ -32,8 +30,6 @@ class StorageServiceHive implements StorageService {
   /// - Assign box to local Hive box instance.
   @override
   Future<void> init() async {
-    // First register all Hive data type adapters. Used for our enum values.
-    // registerHiveAdapters();
     // Get platform compatible storage folder for the Hive box,
     // this setup should work on all Flutter platforms. Hive does not do this
     // right, or it did not in some older versions, never bothered to check
@@ -50,11 +46,9 @@ class StorageServiceHive implements StorageService {
     // could have used only Hive too, but SharedPreferences is a very popular
     // choice for this type of feature. I wanted to show how it can be
     // used as well. We always show this path info in none release builds.
-    if (_debug) {
-      debugPrint(
-        'Hive using storage path: $appDataDir and file name: $boxName',
-      );
-    }
+    debugPrint(
+      'Hive using storage path: $appDataDir and file name: $boxName',
+    );
     // Init the Hive box box giving it the platform usable folder.
     Hive.init(appDataDir);
     // Open the Hive box with passed in name, we just keep it open all the
@@ -62,12 +56,6 @@ class StorageServiceHive implements StorageService {
     await Hive.openBox<dynamic>(boxName);
     // Assign the box to our instance.
     _hiveBox = Hive.box<dynamic>(boxName);
-  }
-
-  // Register all custom Hive data adapters.
-  void registerHiveAdapters() {
-    Hive.registerAdapter(ThemeModeAdapter());
-    Hive.registerAdapter(ColorAdapter());
   }
 
   // ----------
@@ -80,54 +68,68 @@ class StorageServiceHive implements StorageService {
   @override
   Future<T> load<T>(String key, T defaultValue) async {
     // This one is typically inside the try-catch block, but we want to
-    // debug print the storeValue also in the catch block, and for the issue
+    // debug print the storedValue also in the catch block, and for the issue
     // being debugged, we have no crash on getting values from the the WEB
     // indexedDB storage, the issues are on the type conversions.
-    final dynamic storeValue = _hiveBox.get(key, defaultValue: defaultValue);
+    final dynamic storedValue = _hiveBox.get(key, defaultValue: defaultValue);
     try {
-      if (_debug) {
-        debugPrint('Hive LOAD _______________');
-        debugPrint(' Type expected: $key as ${defaultValue.runtimeType}');
-        debugPrint(' Type loaded  : $key as ${storeValue.runtimeType}');
-        debugPrint(' Value loaded : $storeValue');
-        debugPrint(' Type used    : $T');
-      }
+      final bool isNullableDoubleT = sameTypes<T, double?>();
+      debugPrint('Hive LOAD _______________');
+      debugPrint('  Stored value  : $storedValue');
+      debugPrint('  Type expected : $key as ${defaultValue.runtimeType}');
+      debugPrint('  Type loaded   : $key as ${storedValue.runtimeType}');
+      debugPrint('  Type value    : $T');
+      debugPrint('  Default value : $defaultValue');
+      debugPrint('  T is double?  : $isNullableDoubleT');
+      debugPrint('  Using WASM    : ${App.isRunningWithWasm}');
       // Add workaround for hive WASM returning double instead of int, when
-      // values saved were int.
+      // values saved to IndexedDb were int.
       // See issue: https://github.com/IO-Design-Team/hive_ce/issues/46
-      // In this reproduction sample we have seen this FAIL triggered a few
-      // times, but not always, so it is not 100% reproducible, but it happens.
-      // Unknown how to trigger it, but it happens in both the debug and
-      // release build of the Themes Playground.
+      // In this reproduction sample we seen this FAIL triggered ONLY when
+      // loading the values from the DB without having written anything to it
+      // first. We can reproduce this issue by running the sample as WASM build
+      // hitting plus a few times, then hot restart the app and hit Load Values.
+      // We now hit this issue:
       if (App.isRunningWithWasm &&
-          storeValue != null &&
-          (storeValue is double) &&
+          storedValue != null &&
+          (storedValue is double) &&
           (defaultValue is int || defaultValue is int?)) {
-        final T loaded = storeValue.round() as T;
-        if (_debug) {
-          debugPrint(
-            '   WASM Error : Expected int got double, '
-            'returning as int: $loaded',
-          );
-        }
+        final T loaded = storedValue.round() as T;
+        debugPrint(
+          '  ** WASM Error : Expected int got double, '
+          'returning as int: $loaded',
+        );
         return loaded;
+        // We should catch the 2nd issue here, but we do not see it in this
+        // branch, we should see the debugPrint, but we do not see it.
+        // We get a caught error in the catch block instead.
+      } else if (App.isRunningWithWasm &&
+          storedValue != null &&
+          isNullableDoubleT &&
+          defaultValue == null) {
+        debugPrint(
+          '   WASM Error : Expected double? but thinks T is int, '
+          'returning as double: $storedValue',
+        );
+        final double loaded = storedValue as double;
+        return loaded as T;
       } else {
-        final T loaded = storeValue as T;
+        final T loaded = storedValue as T;
         return loaded;
       }
-      // In this reproduction sample we see this FAIL triggered when loading
-      // the nullable double value, that it thinks is an INT for some reason
-      // and type conversion throws.
-      // This issue likely also happen in the release build of WASM-GC
-      // Playground build, as w can get a crash there too. We do not see
+      // In this reproduction sample we see this CATCH triggered when loading
+      // the nullable double value, that it thinks is an INT for some odd reason
+      // and then type conversion throws.
+      // This issue likely also happen in the release build of WASM-GC Themes
+      // Playground build, as we can get a crash there too. We do not see
       // this in debug builds of the Playground WASM-GC, only in the release
       // build.
     } catch (e) {
-      debugPrint('Hive load (get) ERROR');
-      debugPrint(' Error message ...... : $e');
-      debugPrint(' Store key .......... : $key');
-      debugPrint(' Store value ........ : $storeValue');
-      debugPrint(' defaultValue ....... : $defaultValue');
+      debugPrint('Hive LOAD ERROR ********');
+      debugPrint('  Error message ...... : $e');
+      debugPrint('  Store key .......... : $key');
+      debugPrint('  Store value ........ : $storedValue');
+      debugPrint('  defaultValue ....... : $defaultValue');
       if (e is HiveError && e.message.contains('missing type adapter')) {
         // Skip the offending key
         debugPrint(' Missing type adapter : SKIP and return default');
@@ -146,11 +148,9 @@ class StorageServiceHive implements StorageService {
   Future<void> save<T>(String key, T value) async {
     try {
       await _hiveBox.put(key, value);
-      if (_debug) {
-        debugPrint('Hive SAVE _______________');
-        debugPrint(' Type  : $key as ${value.runtimeType}');
-        debugPrint(' Value : $key as $value');
-      }
+      debugPrint('Hive SAVE _______________');
+      debugPrint(' Type  : $key as ${value.runtimeType}');
+      debugPrint(' Value : $key as $value');
     } catch (e) {
       debugPrint('Hive save (put) ERROR');
       debugPrint(' Error message ...... : $e');
