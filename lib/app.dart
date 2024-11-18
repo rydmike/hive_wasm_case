@@ -5,15 +5,21 @@ sealed class App {
     'dart.tool.dart2wasm',
   );
 
-  static const String keyDouble = 'counterOne';
-  static const double doubleDefault = 0.0;
+  static const String keyIntNullable = 'intNullable';
+  static const int? intDefaultNullable = null;
 
-  static const String keyInt = 'counterTwo';
+  static const String keyDoubleNullable = 'doubleNullable';
+  static const double? doubleDefaultNullable = null;
+
+  static const String keyInt = 'intNotNullable';
   static const int intDefault = 0;
 
-  static const String keyNotUsed1 = 'notUsed1';
-  static const int notUsed1Default = 0;
+  static const String keyDouble = 'doubleNotNullable';
+  static const double doubleDefault = 0.0;
 
-  static const String keyNotUsed2 = 'notUsed2';
-  static const double notUsed2Default = 0.0;
+  static const String keyNotUsedInt = 'notUsedInt';
+  static const int notUsedIntDefault = 2;
+
+  static const String keyNotUsedDouble = 'notUsedDouble';
+  static const double notUsedDoubleDefault = 2.0;
 }

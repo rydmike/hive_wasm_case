@@ -70,13 +70,14 @@ class StorageServiceHive implements StorageService {
   /// Hive type adapter that converts <T> into one.
   @override
   Future<T> load<T>(String key, T defaultValue) async {
+    final dynamic gotValue = _hiveBox.get(key, defaultValue: defaultValue);
     try {
-      final dynamic gotValue = _hiveBox.get(key, defaultValue: defaultValue);
       if (_debug) {
         debugPrint('Hive LOAD _______________');
         debugPrint(' Type expected: $key as ${defaultValue.runtimeType}');
         debugPrint(' Type loaded  : $key as ${gotValue.runtimeType}');
         debugPrint(' Value loaded : $gotValue');
+        debugPrint(' Type used    : $T');
       }
       // Add workaround for hive WASM returning double instead of int, when
       // values saved were int.
@@ -101,6 +102,7 @@ class StorageServiceHive implements StorageService {
       debugPrint('Hive load (get) ERROR');
       debugPrint(' Error message ...... : $e');
       debugPrint(' Store key .......... : $key');
+      debugPrint(' Store value ........ : $gotValue');
       debugPrint(' defaultValue ....... : $defaultValue');
       if (e is HiveError && e.message.contains('missing type adapter')) {
         // Skip the offending key
