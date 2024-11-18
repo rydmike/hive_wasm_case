@@ -4,6 +4,7 @@ import 'package:hive_ce/hive.dart';
 import '../app.dart';
 import '../utils/app_data_dir/app_data_dir.dart';
 import 'theme_service.dart';
+import 'theme_service_hive_adapters.dart';
 
 const bool _debug = true;
 
@@ -31,6 +32,8 @@ class StorageServiceHive implements StorageService {
   /// - Assign box to local Hive box instance.
   @override
   Future<void> init() async {
+    // First register all Hive data type adapters. Used for our enum values.
+    // registerHiveAdapters();
     // Get platform compatible storage folder for the Hive box,
     // this setup should work on all Flutter platforms. Hive does not do this
     // right, or it did not in some older versions, never bothered to check
@@ -61,6 +64,12 @@ class StorageServiceHive implements StorageService {
     _hiveBox = Hive.box<dynamic>(boxName);
   }
 
+  // Register all custom Hive data adapters.
+  void registerHiveAdapters() {
+    Hive.registerAdapter(ThemeModeAdapter());
+    Hive.registerAdapter(ColorAdapter());
+  }
+
   // ----------
 
   /// Loads a setting from the Theme service, using a key to access it from
@@ -70,23 +79,31 @@ class StorageServiceHive implements StorageService {
   /// Hive type adapter that converts <T> into one.
   @override
   Future<T> load<T>(String key, T defaultValue) async {
-    final dynamic gotValue = _hiveBox.get(key, defaultValue: defaultValue);
+    // This one is typically inside the try-catch block, but we want to
+    // debug print the storeValue also in the catch block, and for the issue
+    // being debugged, we have no crash on getting values from the the WEB
+    // indexedDB storage, the issues are on the type conversions.
+    final dynamic storeValue = _hiveBox.get(key, defaultValue: defaultValue);
     try {
       if (_debug) {
         debugPrint('Hive LOAD _______________');
         debugPrint(' Type expected: $key as ${defaultValue.runtimeType}');
-        debugPrint(' Type loaded  : $key as ${gotValue.runtimeType}');
-        debugPrint(' Value loaded : $gotValue');
+        debugPrint(' Type loaded  : $key as ${storeValue.runtimeType}');
+        debugPrint(' Value loaded : $storeValue');
         debugPrint(' Type used    : $T');
       }
       // Add workaround for hive WASM returning double instead of int, when
       // values saved were int.
       // See issue: https://github.com/IO-Design-Team/hive_ce/issues/46
+      // In this reproduction sample we have seen this FAIL triggered a few
+      // times, but not always, so it is not 100% reproducible, but it happens.
+      // Unknown how to trigger it, but it happens in both the debug and
+      // release build of the Themes Playground.
       if (App.isRunningWithWasm &&
-          gotValue != null &&
-          (gotValue is double) &&
+          storeValue != null &&
+          (storeValue is double) &&
           (defaultValue is int || defaultValue is int?)) {
-        final T loaded = gotValue.round() as T;
+        final T loaded = storeValue.round() as T;
         if (_debug) {
           debugPrint(
             '   WASM Error : Expected int got double, '
@@ -95,14 +112,21 @@ class StorageServiceHive implements StorageService {
         }
         return loaded;
       } else {
-        final T loaded = gotValue as T;
+        final T loaded = storeValue as T;
         return loaded;
       }
+      // In this reproduction sample we see this FAIL triggered when loading
+      // the nullable double value, that it thinks is an INT for some reason
+      // and type conversion throws.
+      // This issue likely also happen in the release build of WASM-GC
+      // Playground build, as w can get a crash there too. We do not see
+      // this in debug builds of the Playground WASM-GC, only in the release
+      // build.
     } catch (e) {
       debugPrint('Hive load (get) ERROR');
       debugPrint(' Error message ...... : $e');
       debugPrint(' Store key .......... : $key');
-      debugPrint(' Store value ........ : $gotValue');
+      debugPrint(' Store value ........ : $storeValue');
       debugPrint(' defaultValue ....... : $defaultValue');
       if (e is HiveError && e.message.contains('missing type adapter')) {
         // Skip the offending key
