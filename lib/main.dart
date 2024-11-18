@@ -55,13 +55,13 @@ class _MyHomePageState extends State<MyHomePage> {
   int _loadIntCounter = 0;
   double _loadDoubleCounter = 0.0;
 
-  int _loadNotUsedInt = 1;
-  double _loadNotUsedDouble = 1.0;
-
-  Color _loadNotUsedColor = Colors.white;
-  Color? _loadNotUsedNullableColor;
-
-  ThemeMode _loadThemeMode = ThemeMode.light;
+  // int _loadNotUsedInt = 1;
+  // double _loadNotUsedDouble = 1.0;
+  //
+  // Color _loadNotUsedColor = Colors.white;
+  // Color? _loadNotUsedNullableColor;
+  //
+  // ThemeMode _loadThemeMode = ThemeMode.light;
 
   Future<void> _incrementCounter() async {
     setState(() {
@@ -80,10 +80,10 @@ class _MyHomePageState extends State<MyHomePage> {
     // These type conversions are only here to simulate the actual use case
     // frm the Playground. Where a lot of keys are read, but only some contain
     // exist and contain values.
-    _loadNotUsedInt =
-        await widget.store.load(App.keyNotUsedInt, App.notUsedIntDefault);
-    _loadNotUsedDouble =
-        await widget.store.load(App.keyNotUsedDouble, App.notUsedDoubleDefault);
+    // _loadNotUsedInt =
+    //     await widget.store.load(App.keyNotUsedInt, App.notUsedIntDefault);
+    // _loadNotUsedDouble =
+    //     await widget.store.load(App.keyNotUsedDouble, App.notUsedDoubleDefault);
 
     // _loadNotUsedColor =
     //     await widget.store.load(App.keyNotUsedColor, App.notUsedColorDefault);
@@ -94,17 +94,14 @@ class _MyHomePageState extends State<MyHomePage> {
     //     await widget.store.load(App.keyThemeMode, App.defaultThemeMode);
 
     // Load the tested counters of int, int?, double and double? types.
-    //
-    // Ints
-    _loadIntCounter = await widget.store.load(App.keyInt, App.intDefault);
     _loadIntCounterNullable =
         await widget.store.load(App.keyIntNullable, App.intDefaultNullable);
-    // Doubles
-    _loadDoubleCounter =
-        await widget.store.load(App.keyDouble, App.doubleDefault);
-
     _loadDoubleCounterNullable = await widget.store
         .load(App.keyDoubleNullable, App.doubleDefaultNullable);
+    // Doubles
+    _loadIntCounter = await widget.store.load(App.keyInt, App.intDefault);
+    _loadDoubleCounter =
+        await widget.store.load(App.keyDouble, App.doubleDefault);
 
     setState(() {
       _intCounterNullable = _loadIntCounterNullable;
@@ -139,12 +136,12 @@ class _MyHomePageState extends State<MyHomePage> {
             Text('double nullable = $_loadDoubleCounterNullable'),
             Text('int = $_loadIntCounter'),
             Text('double = $_loadDoubleCounter\n'),
-            const Text('\n'),
-            Text('notUsedInt = $_loadNotUsedInt'),
-            Text('notUsedDouble = $_loadNotUsedDouble'),
-            Text('notUsedColor = $_loadNotUsedColor'),
-            Text('notUsedNullableColor = $_loadNotUsedNullableColor'),
-            Text('notUsedThemeMode = $_loadThemeMode'),
+            // const Text('\n'),
+            // Text('notUsedInt = $_loadNotUsedInt'),
+            // Text('notUsedDouble = $_loadNotUsedDouble'),
+            // Text('notUsedColor = $_loadNotUsedColor'),
+            // Text('notUsedNullableColor = $_loadNotUsedNullableColor'),
+            // Text('notUsedThemeMode = $_loadThemeMode'),
             FilledButton(
               onPressed: _loadCounters,
               child: const Text('Load Counters'),
