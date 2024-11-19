@@ -49,6 +49,7 @@ class _MyHomePageState extends State<MyHomePage> {
   double? _doubleCounterNullable;
   int _intCounter = 0;
   double _doubleCounter = 0.0;
+  double? _doubleAlwaysNull;
 
   int? _loadIntCounterNullable;
   double? _loadDoubleCounterNullable;
@@ -64,6 +65,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
     await widget.store.save(App.keyIntNullable, _intCounterNullable);
     await widget.store.save(App.keyDoubleNullable, _doubleCounterNullable);
+    await widget.store.save(App.keyDoubleAlwaysNull, _doubleAlwaysNull);
     await widget.store.save(App.keyInt, _intCounter);
     await widget.store.save(App.keyDouble, _doubleCounter);
   }
@@ -78,6 +80,8 @@ class _MyHomePageState extends State<MyHomePage> {
         await widget.store.load(App.keyDouble, App.doubleDefault);
     _loadDoubleCounterNullable = await widget.store
         .load(App.keyDoubleNullable, App.doubleDefaultNullable);
+    _doubleAlwaysNull = await widget.store
+        .load(App.keyDoubleAlwaysNull, App.doubleDefaultAlwaysNull);
 
     setState(() {
       _intCounterNullable = _loadIntCounterNullable;
@@ -111,7 +115,8 @@ class _MyHomePageState extends State<MyHomePage> {
             Text('int nullable = $_loadIntCounterNullable'),
             Text('double nullable = $_loadDoubleCounterNullable'),
             Text('int = $_loadIntCounter'),
-            Text('double = $_loadDoubleCounter\n'),
+            Text('double = $_loadDoubleCounter'),
+            Text('double null = $_doubleAlwaysNull\n'),
             FilledButton(
               onPressed: _loadCounters,
               child: const Text('Load Values from DB'),

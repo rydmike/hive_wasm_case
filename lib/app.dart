@@ -18,6 +18,9 @@ sealed class App {
   static const String keyDoubleNullable = 'doubleNullable';
   static const double? doubleDefaultNullable = null;
 
+  static const String keyDoubleAlwaysNull = 'doubleAlwaysNull';
+  static const double? doubleDefaultAlwaysNull = null;
+
   static const String keyInt = 'intNotNullable';
   static const int intDefault = 0;
 

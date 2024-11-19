@@ -74,18 +74,19 @@ class StorageServiceHive implements StorageService {
     final dynamic storedValue = _hiveBox.get(key, defaultValue: defaultValue);
     try {
       final bool isNullableDoubleT = sameTypes<T, double?>();
-      debugPrint('Hive LOAD _______________');
+      debugPrint('Store LOAD ______________');
+      debugPrint('  Store key     : $key');
+      debugPrint('  Type expected : $T');
       debugPrint('  Stored value  : $storedValue');
-      debugPrint('  Type expected : $key as ${defaultValue.runtimeType}');
-      debugPrint('  Type loaded   : $key as ${storedValue.runtimeType}');
-      debugPrint('  Type value    : $T');
+      debugPrint('  Stored type   : ${storedValue.runtimeType}');
       debugPrint('  Default value : $defaultValue');
+      debugPrint('  Default type  : ${defaultValue.runtimeType}');
       debugPrint('  T is double?  : $isNullableDoubleT');
       debugPrint('  Using WASM    : ${App.isRunningWithWasm}');
       // Add workaround for hive WASM returning double instead of int, when
       // values saved to IndexedDb were int.
       // See issue: https://github.com/IO-Design-Team/hive_ce/issues/46
-      // In this reproduction sample we seen this FAIL triggered ONLY when
+      // In this reproduction sample we see this FAIL triggered ONLY when
       // loading the values from the DB without having written anything to it
       // first. We can reproduce this issue by running the sample as WASM build
       // hitting plus a few times, then hot restart the app and hit Load Values.
@@ -96,7 +97,7 @@ class StorageServiceHive implements StorageService {
           (defaultValue is int || defaultValue is int?)) {
         final T loaded = storedValue.round() as T;
         debugPrint(
-          '  ** WASM Error : Expected int got double, '
+          '  ** WASM Error : Expected int but got double, '
           'returning as int: $loaded',
         );
         return loaded;
@@ -114,6 +115,7 @@ class StorageServiceHive implements StorageService {
         final double loaded = storedValue as double;
         return loaded as T;
       } else {
+        debugPrint('  Using normal type conversion');
         final T loaded = storedValue as T;
         return loaded;
       }
@@ -125,7 +127,7 @@ class StorageServiceHive implements StorageService {
       // this in debug builds of the Playground WASM-GC, only in the release
       // build.
     } catch (e) {
-      debugPrint('Hive LOAD ERROR ********');
+      debugPrint('Store LOAD ERROR ********');
       debugPrint('  Error message ...... : $e');
       debugPrint('  Store key .......... : $key');
       debugPrint('  Store value ........ : $storedValue');
@@ -148,7 +150,7 @@ class StorageServiceHive implements StorageService {
   Future<void> save<T>(String key, T value) async {
     try {
       await _hiveBox.put(key, value);
-      debugPrint('Hive SAVE _______________');
+      debugPrint('Store SAVE ______________');
       debugPrint(' Type  : $key as ${value.runtimeType}');
       debugPrint(' Value : $key as $value');
     } catch (e) {
