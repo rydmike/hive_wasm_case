@@ -67,11 +67,23 @@ class StorageServiceHive implements StorageService {
   /// Hive type adapter that converts <T> into one.
   @override
   Future<T> load<T>(String key, T defaultValue) async {
-    // This one is typically inside the try-catch block, but we want to
-    // debug print the storedValue also in the catch block, and for the issue
-    // being debugged, we have no crash on getting values from the the WEB
-    // indexedDB storage, the issues are on the type conversions.
-    final dynamic storedValue = _hiveBox.get(key, defaultValue: defaultValue);
+    // A dynamic to hold the value we get from the Hive storage.
+    dynamic storedValue;
+
+    // The hive "get" is in its own try-catch block, as we want to catch any
+    // potential errors that might occur when getting the value from the
+    // storage separately. This catch block is never triggered in this
+    // reproduction sample.
+    try {
+      storedValue = _hiveBox.get(key, defaultValue: defaultValue);
+    } catch (e, stackTrace) {
+      debugPrint('  Error message ...... : $e');
+      debugPrint('  Stacktrace ......... : $stackTrace');
+      // If something goes wrong we return the default value.
+      return defaultValue;
+    }
+
+    // Show a lot of info about used types and values, to help debug issues.
     try {
       final bool isNullableDoubleT = sameTypes<T, double?>();
       debugPrint('Store LOAD ______________');
@@ -83,14 +95,16 @@ class StorageServiceHive implements StorageService {
       debugPrint('  Default type  : ${defaultValue.runtimeType}');
       debugPrint('  T is double?  : $isNullableDoubleT');
       debugPrint('  Using WASM    : ${App.isRunningWithWasm}');
+
       // Add workaround for hive WASM returning double instead of int, when
       // values saved to IndexedDb were int.
-      // See issue: https://github.com/IO-Design-Team/hive_ce/issues/46
       // In this reproduction sample we see this FAIL triggered ONLY when
       // loading the values from the DB without having written anything to it
       // first. We can reproduce this issue by running the sample as WASM build
-      // hitting plus a few times, then hot restart the app and hit Load Values.
-      // We now hit this issue:
+      // hitting Increase button a few times, then hot restart the app or
+      // reload the browser and hit Load Values. We then hit this issue.
+      // Without this special if case handling, we would get an error thrown.
+      // This path is never entered on native VM or JS builds.
       if (App.isRunningWithWasm &&
           storedValue != null &&
           (storedValue is double) &&
@@ -102,7 +116,7 @@ class StorageServiceHive implements StorageService {
         );
         return loaded;
         // We should catch the 2nd issue here, but we do not see it in this
-        // branch, we should see the debugPrint, but we do not see it.
+        // if branch, we should see the debugPrint, but we do not see it.
         // We get a caught error in the catch block instead.
       } else if (App.isRunningWithWasm &&
           storedValue != null &&
@@ -115,7 +129,7 @@ class StorageServiceHive implements StorageService {
         final double loaded = storedValue as double;
         return loaded as T;
       } else {
-        debugPrint('  Using normal type conversion');
+        debugPrint('  OK: No type conversion errors, ALL OK');
         final T loaded = storedValue as T;
         return loaded;
       }
@@ -126,12 +140,13 @@ class StorageServiceHive implements StorageService {
       // Playground build, as we can get a crash there too. We do not see
       // this in debug builds of the Playground WASM-GC, only in the release
       // build.
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Store LOAD ERROR ********');
       debugPrint('  Error message ...... : $e');
       debugPrint('  Store key .......... : $key');
       debugPrint('  Store value ........ : $storedValue');
       debugPrint('  defaultValue ....... : $defaultValue');
+      debugPrint('  Stacktrace ......... : $stackTrace');
       if (e is HiveError && e.message.contains('missing type adapter')) {
         // Skip the offending key
         debugPrint(' Missing type adapter : SKIP and return default');
@@ -151,13 +166,17 @@ class StorageServiceHive implements StorageService {
     try {
       await _hiveBox.put(key, value);
       debugPrint('Store SAVE ______________');
-      debugPrint(' Type  : $key as ${value.runtimeType}');
-      debugPrint(' Value : $key as $value');
-    } catch (e) {
+      debugPrint('  Store key     : $key');
+      debugPrint('  Stored value  : $value');
+      debugPrint('  Type to save  : $T');
+      debugPrint('  Runtime type  : ${value.runtimeType}');
+      debugPrint('  Using WASM    : ${App.isRunningWithWasm}');
+    } catch (e, stackTrace) {
       debugPrint('Hive save (put) ERROR');
       debugPrint(' Error message ...... : $e');
       debugPrint(' Store key .......... : $key');
       debugPrint(' Save value ......... : $value');
+      debugPrint(' Stacktrace ......... : $stackTrace');
     }
   }
 

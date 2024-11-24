@@ -1,5 +1,10 @@
 /// Abstract interface for the StorageService used to read and save key-value
 /// properties.
+///
+/// This is in use here only because it was a part of the original codebase
+/// where the issue was discovered. In that code base, in examples 2 and 3
+/// a SharedPreferences implementation is used instead, and examples 4 and 5
+/// use Hive.
 abstract class StorageService {
   /// StorageService implementations may override this method to perform needed
   /// initialization and setup work.
