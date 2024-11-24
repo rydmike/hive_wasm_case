@@ -7,10 +7,7 @@ And here:
 
 ## Type conversion issues in WASM builds
 
-When saving key-value pair to a Hive box in a Flutter WASM web build, the of types 
-`int`, `int?` and `double?` are not type converted correctly when retrieving 
-values from the Hive box, that uses WEB IndexedDB for the locally persisted 
-data.
+When saving key-value pair to a Hive box in a Flutter WASM web build, the of types `int`, `int?` and `double?` are not type converted correctly when retrieving values from the Hive box, that uses WEB IndexedDB for the locally persisted data.
 
 When building the same code using native Dart VM build as target or more relevant, when building with JavaScript as target, the type conversions all work as expected.
 
@@ -162,7 +159,7 @@ Again if we restart the app with a page refresh (or Flutter hot restart), the `i
 
 <ADD Image 10>
 
-The first **issue 1)** is present all the time, but the second **issue 2)** with int being returned as double is only present when loading values from the IndexedDB for the first time, without having written anything to it first.
+It is worth noticing that **issue 1)** is present all the time, but the second **issue 2)** with `int` being returned as `double` is only present when loading values from the **IndexedDB**, without having written anything to it first after starting the app, it seem like if you write something to it after opening the DB, the read values will be returned with the correct `int` type.
 
 ### Flutter version
 
