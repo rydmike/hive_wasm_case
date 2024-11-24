@@ -3,7 +3,7 @@
 A small repo to test and verify a potential WASM issue.
 
 Reported here in `hive_ce`: https://github.com/IO-Design-Team/hive_ce/issues/46
-And here in `flutter`:  
+And here in `flutter`: https://github.com/flutter/flutter/issues/159400 
 
 ## Type conversion issues in WASM builds
 
@@ -227,5 +227,4 @@ flutter doctor -v
     • All expected network resources are available.
 
 ```
-
 </details>
