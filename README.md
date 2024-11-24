@@ -1,15 +1,18 @@
-# DRAFT - hive_wasm_case
+# hive_wasm_case
 
-A small repo to test and verify a potential hive WASM issue.
+A small repo to test and verify a potential WASM issue.
 
-Reported here: https://github.com/IO-Design-Team/hive_ce/issues/46
-And here: 
+Reported here in `hive_ce`: https://github.com/IO-Design-Team/hive_ce/issues/46
+And here in `flutter`:  
 
 ## Type conversion issues in WASM builds
 
 When saving key-value pair to a Hive box in a Flutter WASM web build, the of types `int`, `int?` and `double?` are not type converted correctly when retrieving values from the Hive box, that uses WEB IndexedDB for the locally persisted data.
 
 When building the same code using native Dart VM build as target or more relevant, when building with JavaScript as target, the type conversions all work as expected.
+
+This is two more WASM issues discussed with @kevmoo in a video meeting Nov 18, 2024.
+
 
 ## Issue sample code
 
@@ -18,6 +21,10 @@ The reproduction sample is provided in a separate repository here: https://githu
 The sample uses the `hive_ce` package that on web builds persists **key-value** pairs in the WEB browser IndexedDB. The `hive_ce` package is a community fork of the original `hive` package, that has been modified to work with **Flutter Web WASM** builds, by using `package:web` instead of `html` library.
 
 The package works as expected when building for Web JS target with no `--wasm` option, but when building with `--wasm` option, the here presented type conversion issues are present.
+
+As the `hive_ce` package is used, the issue has also been reported to package maintainer here https://github.com/IO-Design-Team/hive_ce/issues/46.
+
+While it is possible that the issue is in the package, it is worth stating that `hive_ce` works as expected on native VM and Web JS builds, and for the WASM build it uses the same `package:web` primitives as the Flutter Web JS build, that works correctly and as expected.
 
 
 ## Expected results
@@ -29,18 +36,17 @@ Open up developer tools, show the console.
 
 Hit the **(Increase values and save to DB)** button to add some key-value pairs to the IndexedDB for local storage.
 
-<ADD Image 1>
+![1-wasm-issue](https://github.com/user-attachments/assets/74a740d5-709b-40ee-ac97-5f5c93dec2db)
 
 We can verify that the values have been persisted as expected in comparing console log debug prints and values persisted in browser **IndexedDB**.
 
-<ADD Image 2>
-
+![2-wasm issue](https://github.com/user-attachments/assets/ab88f89f-f29c-40e4-8e0d-7d92626a8213)
 
 Next hit refresh page on the browser, an empty start page is shown, then hit the **(Load values from DB)** button, to load values from the IndexedDB.
 
 Same values as before are loaded and printed to the console **without any errors**.
 
-<ADD Image 3>
+![3-wasm-issue](https://github.com/user-attachments/assets/ca435eb4-3352-466a-a199-6426b60adc0e)
 
 This works the same way on all **native VM platform** builds and **WEB JS** builds and on ALL Flutter channels. We **expect** the **same** results in a **WEB WASM** build.
 
@@ -54,17 +60,17 @@ Again open up developer tools, show the console.
 
 Hit the **(Increase values and save to DB)** button to add some key-value pairs to the IndexedDB for local storage.
 
-<ADD Image 4>
+![4-wasm-issue](https://github.com/user-attachments/assets/2336d0a4-bbe6-4462-8c99-668a9739cc3b)
 
 We can again verify that the values have been persisted as expected by checking the console.
 
-<ADD Image 5>
+![5-wasm-issue](https://github.com/user-attachments/assets/0ee71101-c64d-48db-98ea-e733349c1428)
 
 ### Issue 1) double? type conversion issue
 
 Next clear the console and then hit **(Load values from DB)** button.
 
-<ADD Image 6>
+![6-wasm-issue](https://github.com/user-attachments/assets/b765f775-1182-4737-8cb4-5d85eaad2188)
 
 We can see that the saved value that had type nullable double `double?`, threw an **exception** error when trying to convert it back to double.
 
@@ -115,7 +121,7 @@ Next comes an interesting twist.
 
 Next hit refresh page on the browser, empty start page is shown, and hit **(Load values from DB)** button again.
 
-<ADD Image 7>
+![7-wasm-issue](https://github.com/user-attachments/assets/e577c3cc-1553-448b-ac50-d95ee2cc78b3)
 
 This time we get **more errors**! 
 
@@ -149,15 +155,15 @@ We can see that in this case when the values are loaded from the **IndexedDB**, 
 
 We can again check that values are actually persisted in the **IndexedDB** and that the values are correct, they are **"1"** and not **"1.0"** as returned when loading the values from the **IndexedDB** when starting the app without having saved anything to it first.
 
-<ADD Image 8>
+![8-wasm-issue](https://github.com/user-attachments/assets/3c5866a1-d61c-4057-bcb1-43961f61d867)
 
 If we hit **(Increase values and save to DB)** button again and update the `int` values to **2**, and hit **(Load values from DB)** again, we can see that the values are now loaded as **"2"** as they should be, and not **"2.0"**.
 
-<ADD Image 9>
+![9-wasm-issue](https://github.com/user-attachments/assets/df492aa5-04ab-4468-9cf9-d7fcb7109a0b)
 
 Again if we restart the app with a page refresh (or Flutter hot restart), the `int` values are again returned as **"2.0"** and not **"2"**. 
 
-<ADD Image 10>
+![10-wasm-issue](https://github.com/user-attachments/assets/05ff42fb-070e-4b79-8a08-de34083f1cac)
 
 It is worth noticing that **issue 1)** is present all the time, but the second **issue 2)** with `int` being returned as `double` is only present when loading values from the **IndexedDB**, without having written anything to it first after starting the app, it seem like if you write something to it after opening the DB, the read values will be returned with the correct `int` type.
 
