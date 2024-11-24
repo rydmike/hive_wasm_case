@@ -11,8 +11,7 @@ When saving key-value pair to a Hive box in a Flutter WASM web build, the of typ
 
 When building the same code using native Dart VM build as target or more relevant, when building with JavaScript as target, the type conversions all work as expected.
 
-This is two more WASM issues discussed with @kevmoo in a video meeting Nov 18, 2024.
-
+This issue covers the two other WASM issues mentioned [here #159375](https://github.com/flutter/flutter/issues/159375) that were discussed with @kevmoo in a video meeting Nov 18, 2024. A reproduction sample and issue in the Flutter repo was requested by Kevin during the meeting.
 
 ## Issue sample code
 
