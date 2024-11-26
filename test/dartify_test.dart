@@ -12,99 +12,105 @@ void main() {
   print(i.toJS.dartify() is int); // WASM false, JS true
   print(i.toJS.dartify() is double); // WASM true, JS true
 
-  group('dartify tests with no casts', () {
+  // In this test we just test the value equality.
+  group('A) dartify no casts', () {
     // Int value tests
-    test('dartify JSAny? value 1 and test if int?', () {
-      final JSAny? jsValue = 1.toJS;
+    test('1: dartify JSAny? value 1 and test if int', () {
+      const int inputValue = 1;
+      final JSAny? jsValue = inputValue.toJS;
       final Object? dartValue = jsValue.dartify();
-      const int? typedValue = 1;
-      print('dartValue: $dartValue');
-      expect(dartValue, equals(typedValue));
+      print('inputValue=$inputValue  jsValue=$jsValue  dartValue=$dartValue');
+      expect(dartValue, equals(inputValue));
     });
-    test('dartify JSAny? value 1 and test if int', () {
-      final JSAny? jsValue = 1.toJS;
+    test('2: dartify JSAny? value 1 and test if int?', () {
+      const int? inputValue = 1;
+      final JSAny? jsValue = inputValue.toJS;
       final Object? dartValue = jsValue.dartify();
-      const int typedValue = 1;
-      print('dartValue: $dartValue');
-      expect(dartValue, equals(typedValue));
+      print('inputValue=$inputValue  jsValue=$jsValue  dartValue=$dartValue');
+      expect(dartValue, equals(inputValue));
     });
-    test('dartify JSAny? value null and test if int? null', () {
-      final JSAny? jsValue = null as JSAny?;
+    test('3: dartify JSAny? value null and test if int? null', () {
+      const int? inputValue = null;
+      final JSAny? jsValue = inputValue as JSAny?;
       final Object? dartValue = jsValue.dartify();
-      const int? typedValue = null;
-      print('dartValue: $dartValue');
-      expect(dartValue, equals(typedValue));
+      print('inputValue=$inputValue  jsValue=$jsValue  dartValue=$dartValue');
+      expect(dartValue, equals(inputValue));
     });
 
     // Double value tests
-    test('dartify JSAny? value 1.0 and test if double?', () {
-      final JSAny? jsValue = 1.0.toJS;
+    test('4: dartify JSAny? value 0.1 and test if double', () {
+      const double inputValue = 0.1;
+      final JSAny? jsValue = inputValue.toJS;
       final Object? dartValue = jsValue.dartify();
-      const double? typedValue = 1;
-      print('dartValue: $dartValue');
-      expect(dartValue, equals(typedValue));
+      print('inputValue=$inputValue  jsValue=$jsValue  dartValue=$dartValue');
+      expect(dartValue, equals(inputValue));
     });
-    test('dartify JSAny? value 1.0 and test if double', () {
-      final JSAny? jsValue = 1.0.toJS;
+    test('5: dartify JSAny? value 0.1 and test if double?', () {
+      const double? inputValue = 0.1;
+      final JSAny? jsValue = inputValue.toJS;
       final Object? dartValue = jsValue.dartify();
-      const double typedValue = 1.0;
-      print('dartValue: $dartValue');
-      expect(dartValue, equals(typedValue));
+      print('inputValue=$inputValue  jsValue=$jsValue  dartValue=$dartValue');
+      expect(dartValue, equals(inputValue));
     });
-    test('dartify JSAny? value null and test if double? null', () {
-      final JSAny? jsValue = null as JSAny?;
+    test('6: dartify JSAny? value null and test if double? null', () {
+      const double? inputValue = null;
+      final JSAny? jsValue = inputValue as JSAny?;
       final Object? dartValue = jsValue.dartify();
-      const double? typedValue = null;
-      print('dartValue: $dartValue');
-      expect(dartValue, equals(typedValue));
+      print('inputValue=$inputValue  jsValue=$jsValue  dartValue=$dartValue');
+      expect(dartValue, equals(inputValue));
     });
   });
 
-  group('dartify tests with casts', () {
+  // In this test we just test the value equality and that we get the
+  // correct expected type that we put in to it. We use casts to see if
+  // the type conversion fails.
+  // This is what would happen in issue 2) if the added hacky workaround
+  // was not in place.
+  group('B) dartify with casts', () {
     // Int value tests
-    test('dartify JSAny? value 1 and test if int?', () {
-      final JSAny? jsValue = 1.toJS;
+    test('7: dartify JSAny? value 1 and test if int', () {
+      const int inputValue = 1;
+      final JSAny? jsValue = inputValue.toJS;
       final Object? dartValue = jsValue.dartify();
-      const int? typedValue = 1;
-      print('dartValue: $dartValue');
-      expect(dartValue as int?, equals(typedValue));
+      print('inputValue=$inputValue  jsValue=$jsValue  dartValue=$dartValue');
+      expect(dartValue as int, equals(inputValue));
     });
-    test('dartify JSAny? value 1 and test if int', () {
-      final JSAny? jsValue = 1.toJS;
+    test('8: dartify JSAny? value 1 and test if int?', () {
+      const int? inputValue = 1;
+      final JSAny? jsValue = inputValue.toJS;
       final Object? dartValue = jsValue.dartify();
-      const int typedValue = 1;
-      print('dartValue: $dartValue');
-      expect(dartValue as int?, equals(typedValue));
+      print('inputValue=$inputValue  jsValue=$jsValue  dartValue=$dartValue');
+      expect(dartValue as int?, equals(inputValue));
     });
-    test('dartify JSAny? value null and test if int? null', () {
-      final JSAny? jsValue = null as JSAny?;
+    test('9: dartify JSAny? value null and test if int? null', () {
+      const int? inputValue = null;
+      final JSAny? jsValue = inputValue as JSAny?;
       final Object? dartValue = jsValue.dartify();
-      const int? typedValue = null;
-      print('dartValue: $dartValue');
-      expect(dartValue as int?, equals(typedValue));
+      print('inputValue=$inputValue  jsValue=$jsValue  dartValue=$dartValue');
+      expect(dartValue as int?, equals(inputValue));
     });
 
     // Double value tests
-    test('dartify JSAny? value 1.0 and test if double?', () {
-      final JSAny? jsValue = 1.0.toJS;
+    test('10: dartify JSAny? value 0.1 and test if double', () {
+      const double inputValue = 0.1;
+      final JSAny? jsValue = inputValue.toJS;
       final Object? dartValue = jsValue.dartify();
-      const double? typedValue = 1;
-      print('dartValue: $dartValue');
-      expect(dartValue as double?, equals(typedValue));
+      print('inputValue=$inputValue  jsValue=$jsValue  dartValue=$dartValue');
+      expect(dartValue as double, equals(inputValue));
     });
-    test('dartify JSAny? value 1.0 and test if double', () {
-      final JSAny? jsValue = 1.toJS;
+    test('11: dartify JSAny? value 0.1 and test if double?', () {
+      const double? inputValue = 0.1;
+      final JSAny? jsValue = inputValue.toJS;
       final Object? dartValue = jsValue.dartify();
-      const double typedValue = 1.0;
-      print('dartValue: $dartValue');
-      expect(dartValue as double?, equals(typedValue));
+      print('inputValue=$inputValue  jsValue=$jsValue  dartValue=$dartValue');
+      expect(dartValue as double?, equals(inputValue));
     });
-    test('dartify JSAny? value null and test if double? null', () {
-      final JSAny? jsValue = null as JSAny?;
+    test('12: dartify JSAny? value null and test if double? null', () {
+      const double? inputValue = null;
+      final JSAny? jsValue = inputValue as JSAny?;
       final Object? dartValue = jsValue.dartify();
-      const double? typedValue = null;
-      print('dartValue: $dartValue');
-      expect(dartValue as double?, equals(typedValue));
+      print('inputValue=$inputValue  jsValue=$jsValue  dartValue=$dartValue');
+      expect(dartValue as double?, equals(inputValue));
     });
   });
 }
