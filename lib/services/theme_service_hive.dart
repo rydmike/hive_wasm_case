@@ -63,8 +63,8 @@ class StorageServiceHive implements StorageService {
   /// Loads a setting from the Theme service, using a key to access it from
   /// the Hive storage box.
   ///
-  /// If type <T> is not an atomic Dart type, there must be a
-  /// Hive type adapter that converts <T> into one.
+  /// If type T is not an atomic Dart type, there must be a
+  /// Hive type adapter that converts T into one.
   @override
   Future<T> load<T>(String key, T defaultValue) async {
     // A dynamic to hold the value we get from the Hive storage.
@@ -159,8 +159,8 @@ class StorageServiceHive implements StorageService {
   /// Save a setting to the Theme service with the Hive storage box,
   /// using key, as key for the value.
   ///
-  /// If type <T> is not an atomic Dart type, there must be a
-  /// Hive type adapter that converts <T> into one.
+  /// If type T is not an atomic Dart type, there must be a
+  /// Hive type adapter that converts T into one.
   @override
   Future<void> save<T>(String key, T value) async {
     try {
