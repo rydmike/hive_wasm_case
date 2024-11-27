@@ -11,11 +11,16 @@ dependencies:
   flutter:
     sdk: flutter
 
-  # Hive local storage, originally by Simon Leir.
+  # Hive local storage, originally by Simon Leir/Choi.
   # Used as value-key pair persistence service in examples 4 and 5 (Themes Playground).
   # hive: ^2.2.3 # Original Hive package
   # This is a community fork that supports WASM-GC, by using package:web
-  hive_ce: ^2.8.0
+  hive_ce: # ^2.8.0
+    # path: ../hive_ce/hive
+    git:
+      url: https://github.com/rydmike/hive_ce.git
+      ref: main
+      path: hive/
 
   # Commonly used directories on host platform file systems, by Google (flutter.dev).
   # Used to get a working storage path for Hive on Windows. This may not be

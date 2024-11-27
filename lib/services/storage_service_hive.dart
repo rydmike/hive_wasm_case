@@ -82,7 +82,6 @@ class StorageServiceHive implements StorageService {
       // If something goes wrong we return the default value.
       return defaultValue;
     }
-
     // Show a lot of info about used types and values, to help debug issues.
     try {
       final bool isNullableDoubleT = sameTypes<T, double?>();
@@ -96,51 +95,17 @@ class StorageServiceHive implements StorageService {
       debugPrint('  T is double?  : $isNullableDoubleT');
       debugPrint('  Using WASM    : ${App.isRunningWithWasm}');
 
-      // Add workaround for hive WASM returning double instead of int, when
-      // values saved to IndexedDb were int.
-      // In this reproduction sample we see this FAIL triggered ONLY when
-      // loading the values from the DB without having written anything to it
-      // first. We can reproduce this issue by running the sample as WASM build
-      // hitting Increase button a few times, then hot restart the app or
-      // reload the browser and hit Load Values. We then hit this issue.
-      // Without this special if case handling, we would get an error thrown.
-      // This path is never entered on native VM or JS builds.
-      if (App.isRunningWithWasm &&
-          storedValue != null &&
-          (storedValue is double) &&
-          (defaultValue is int || defaultValue is int?)) {
-        final T loaded = storedValue.round() as T;
-        debugPrint(
-          '  ** WASM Error : Expected int but got double, '
-          'returning as int: $loaded',
-        );
-        return loaded;
-        // We should catch the 2nd issue here, but we do not see it in this
-        // if branch, we should see the debugPrint, but we do not see it.
-        // We get a caught error in the catch block instead.
-      } else if (App.isRunningWithWasm &&
-          storedValue != null &&
-          isNullableDoubleT &&
-          defaultValue == null) {
-        debugPrint(
-          '   WASM Error : Expected double? but thinks T is int, '
-          'returning as double: $storedValue',
-        );
-        final double loaded = storedValue as double;
-        return loaded as T;
-      } else {
-        debugPrint('  OK: No type conversion errors, ALL OK');
-        final T loaded = storedValue as T;
-        return loaded;
-      }
-      // In this reproduction sample we see this CATCH triggered when loading
-      // the nullable double value, that it thinks is an INT for some odd reason
-      // and then type conversion throws.
-      // This issue likely also happen in the release build of WASM-GC Storages
-      // Playground build, as we can get a crash there too. We do not see
-      // this in debug builds of the Playground WASM-GC, only in the release
-      // build.
-    } catch (e, stackTrace) {
+      final T loaded = storedValue as T;
+      return loaded;
+    }
+    // In this reproduction sample we see this CATCH triggered when loading
+    // the nullable double value, that it thinks is an INT for some odd reason
+    // and then type conversion throws.
+    // This issue likely also happen in the release build of WASM-GC Storages
+    // Playground build, as we can get a crash there too. We do not see
+    // this in debug builds of the Playground WASM-GC, only in the release
+    // build.
+    catch (e, stackTrace) {
       debugPrint('Store LOAD ERROR ********');
       debugPrint('  Error message ...... : $e');
       debugPrint('  Store key .......... : $key');

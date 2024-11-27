@@ -5,6 +5,12 @@ A small repo to test and verify a potential WASM issue.
 Reported here in `hive_ce`: https://github.com/IO-Design-Team/hive_ce/issues/46
 And here in `flutter`: https://github.com/flutter/flutter/issues/159400 
 
+> [!Note]
+> This issue is now solved with a small addition in a used GitHub fork of
+> `hive_ce` package here https://github.com/rydmike/hive_ce. 
+> The sample provided here is now working as expected.
+> All info below is kept for reference.
+
 ## Type conversion issues in WASM builds
 
 When saving key-value pair to a Hive box in a Flutter WASM web build, the of types `int`, `int?` and `double?` are not type converted correctly when retrieving values from the Hive box, that uses WEB IndexedDB for the locally persisted data.
