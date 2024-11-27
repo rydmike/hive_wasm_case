@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'app.dart';
-import 'services/theme_service.dart';
-import 'services/theme_service_hive.dart';
+import 'services/storage_service.dart';
+import 'services/storage_service_hive.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

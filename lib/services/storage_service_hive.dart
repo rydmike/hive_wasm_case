@@ -4,7 +4,7 @@ import 'package:hive_ce/hive.dart';
 import '../app.dart';
 import '../utils/app_data_dir/app_data_dir.dart';
 import '../utils/same_types.dart';
-import 'theme_service.dart';
+import 'storage_service.dart';
 
 /// A [StorageService] implementation that stores and retrieves settings
 /// locally using the package Hive: https://pub.dev/packages/hive
@@ -21,7 +21,7 @@ class StorageServiceHive implements StorageService {
   // by the init call before accessing the storage box.
   late final Box<dynamic> _hiveBox;
 
-  /// ThemeServiceHive's init implementation. Must call be before accessing
+  /// StorageServiceHive's init implementation. Must call be before accessing
   /// the storage box.
   ///
   /// - Registers Hive data type adapters for our enum values
@@ -39,7 +39,7 @@ class StorageServiceHive implements StorageService {
     final String appDataDir = await getAppDataDir();
     // To make it easier to find the files on your device, this should help.
     // Usually you find the "shared_preferences.json" file in the same folder
-    // that the ThemeServicePref creates with SharedPreferences. You cannot
+    // that the StorageServicePref creates with SharedPreferences. You cannot
     // set the name on that file so all examples would have shared the same
     // settings on local builds if SharedPreferences would have been used for
     // all examples. Wanted to avoid that, which we can do with Hive. Sure we
@@ -60,7 +60,7 @@ class StorageServiceHive implements StorageService {
 
   // ----------
 
-  /// Loads a setting from the Theme service, using a key to access it from
+  /// Loads a setting from the Storage service, using a key to access it from
   /// the Hive storage box.
   ///
   /// If type T is not an atomic Dart type, there must be a
@@ -136,7 +136,7 @@ class StorageServiceHive implements StorageService {
       // In this reproduction sample we see this CATCH triggered when loading
       // the nullable double value, that it thinks is an INT for some odd reason
       // and then type conversion throws.
-      // This issue likely also happen in the release build of WASM-GC Themes
+      // This issue likely also happen in the release build of WASM-GC Storages
       // Playground build, as we can get a crash there too. We do not see
       // this in debug builds of the Playground WASM-GC, only in the release
       // build.
@@ -156,7 +156,7 @@ class StorageServiceHive implements StorageService {
     }
   }
 
-  /// Save a setting to the Theme service with the Hive storage box,
+  /// Save a setting to the Storage service with the Hive storage box,
   /// using key, as key for the value.
   ///
   /// If type T is not an atomic Dart type, there must be a
