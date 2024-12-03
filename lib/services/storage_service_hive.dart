@@ -38,14 +38,6 @@ class StorageServiceHive implements StorageService {
     // SharedPreferences does.
     final String appDataDir = await getAppDataDir();
     // To make it easier to find the files on your device, this should help.
-    // Usually you find the "shared_preferences.json" file in the same folder
-    // that the StorageServicePref creates with SharedPreferences. You cannot
-    // set the name on that file so all examples would have shared the same
-    // settings on local builds if SharedPreferences would have been used for
-    // all examples. Wanted to avoid that, which we can do with Hive. Sure we
-    // could have used only Hive too, but SharedPreferences is a very popular
-    // choice for this type of feature. I wanted to show how it can be
-    // used as well. We always show this path info in none release builds.
     debugPrint(
       'Hive using storage path: $appDataDir and file name: $boxName',
     );
@@ -57,8 +49,6 @@ class StorageServiceHive implements StorageService {
     // Assign the box to our instance.
     _hiveBox = Hive.box<dynamic>(boxName);
   }
-
-  // ----------
 
   /// Loads a setting from the Storage service, using a key to access it from
   /// the Hive storage box.
@@ -76,14 +66,7 @@ class StorageServiceHive implements StorageService {
     // reproduction sample.
     try {
       storedValue = _hiveBox.get(key, defaultValue: defaultValue);
-    } catch (e, stackTrace) {
-      debugPrint('  Error message ...... : $e');
-      debugPrint('  Stacktrace ......... : $stackTrace');
-      // If something goes wrong we return the default value.
-      return defaultValue;
-    }
-    // Show a lot of info about used types and values, to help debug issues.
-    try {
+
       final bool isNullableDoubleT = sameTypes<T, double?>();
       debugPrint('Store LOAD ______________');
       debugPrint('  Store key     : $key');
@@ -95,17 +78,34 @@ class StorageServiceHive implements StorageService {
       debugPrint('  T is double?  : $isNullableDoubleT');
       debugPrint('  Using WASM    : ${App.isRunningWithWasm}');
 
-      final T loaded = storedValue as T;
-      return loaded;
-    }
-    // In this reproduction sample we see this CATCH triggered when loading
-    // the nullable double value, that it thinks is an INT for some odd reason
-    // and then type conversion throws.
-    // This issue likely also happen in the release build of WASM-GC Storages
-    // Playground build, as we can get a crash there too. We do not see
-    // this in debug builds of the Playground WASM-GC, only in the release
-    // build.
-    catch (e, stackTrace) {
+      // Must use the sameTypes() here to compare generic type to target type.
+      final bool isNullableIntT = sameTypes<T, int?>();
+      final bool isIntT = sameTypes<T, int>();
+
+      // Add workaround for hive WASM returning double instead of int, when
+      // values saved to IndexedDb were int.
+      // In this reproduction sample we see this FAIL triggered when reloading
+      // values from the DB.
+      // We can reproduce this issue by running the sample as WASM build
+      // hitting Increase button a few times, then hot restart the app or
+      // reload the browser and hit Load Values. We then hit this issue.
+      // Without this special if case handling, we would get an error thrown.
+      // This path is never entered on native VM or JS builds.
+      if (App.isRunningWithWasm &&
+          storedValue != null &&
+          (storedValue is double) &&
+          (isNullableIntT || isIntT)) {
+        final T loaded = (storedValue as num).toInt() as T;
+        // This works too:
+        // final T loaded = storedValue.round() as T;
+        debugPrint('  ** WASM Error : Expected int but got double, '
+            'returning as int: $loaded');
+
+        return loaded;
+      } else {
+        return storedValue as T;
+      }
+    } catch (e, stackTrace) {
       debugPrint('Store LOAD ERROR ********');
       debugPrint('  Error message ...... : $e');
       debugPrint('  Store key .......... : $key');
