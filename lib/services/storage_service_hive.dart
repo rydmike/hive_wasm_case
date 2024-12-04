@@ -59,13 +59,8 @@ class StorageServiceHive implements StorageService {
   Future<T> load<T>(String key, T defaultValue) async {
     // A dynamic to hold the value we get from the Hive storage.
     dynamic storedValue;
-
-    // The hive "get" is in its own try-catch block, as we want to catch any
-    // potential errors that might occur when getting the value from the
-    // storage separately. This catch block is never triggered in this
-    // reproduction sample.
     try {
-      storedValue = _hiveBox.get(key, defaultValue: defaultValue);
+      storedValue = await _hiveBox.get(key, defaultValue: defaultValue);
 
       final bool isNullableDoubleT = sameTypes<T, double?>();
       debugPrint('Store LOAD ______________');
@@ -79,8 +74,8 @@ class StorageServiceHive implements StorageService {
       debugPrint('  Using WASM    : ${App.isRunningWithWasm}');
 
       // Must use the sameTypes() here to compare generic type to target type.
-      final bool isNullableIntT = sameTypes<T, int?>();
-      final bool isIntT = sameTypes<T, int>();
+      // final bool isNullableIntT = sameTypes<T, int?>();
+      // final bool isIntT = sameTypes<T, int>();
 
       // Add workaround for hive WASM returning double instead of int, when
       // values saved to IndexedDb were int.
@@ -91,20 +86,19 @@ class StorageServiceHive implements StorageService {
       // reload the browser and hit Load Values. We then hit this issue.
       // Without this special if case handling, we would get an error thrown.
       // This path is never entered on native VM or JS builds.
-      if (App.isRunningWithWasm &&
-          storedValue != null &&
-          (storedValue is double) &&
-          (isNullableIntT || isIntT)) {
-        final T loaded = (storedValue as num).toInt() as T;
-        // This works too:
-        // final T loaded = storedValue.round() as T;
-        debugPrint('  ** WASM Error : Expected int but got double, '
-            'returning as int: $loaded');
-
-        return loaded;
-      } else {
-        return storedValue as T;
-      }
+      // if (App.isRunningWithWasm &&
+      //     storedValue != null &&
+      //     (storedValue is double) &&
+      //     (isNullableIntT || isIntT)) {
+      //   final T loaded = (storedValue as num).toInt() as T;
+      //   // This works too:
+      //   // final T loaded = storedValue.round() as T;
+      //   debugPrint('  ** WASM Error : Expected int but got double, '
+      //       'returning as int: $loaded');
+      //   return loaded;
+      // } else {
+      return storedValue as T;
+      // }
     } catch (e, stackTrace) {
       debugPrint('Store LOAD ERROR ********');
       debugPrint('  Error message ...... : $e');
