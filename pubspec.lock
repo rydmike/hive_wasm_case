@@ -194,10 +194,10 @@ packages:
     dependency: transitive
     description:
       name: coverage
-      sha256: "4b03e11f6d5b8f6e5bb5e9f7889a56fe6c5cbe942da5378ea4d4d7f73ef9dfe5"
+      sha256: e3493833ea012784c740e341952298f1cc77f1f01b1bbc3eb4eecf6984fb7f43
       url: "https://pub.dev"
     source: hosted
-    version: "1.11.0"
+    version: "1.11.1"
   crypto:
     dependency: transitive
     description:
@@ -292,11 +292,11 @@ packages:
     dependency: "direct main"
     description:
       path: hive
-      ref: "feature/wasm-num-fix"
-      resolved-ref: "68b4ee3cc20766323a2663c52c479e521faf7d8a"
-      url: "https://github.com/IO-Design-Team/hive_ce.git"
+      ref: main
+      resolved-ref: f5d367b6c6b6a8a4bc3b23252e84353ab781197a
+      url: "https://github.com/rydmike/hive_ce.git"
     source: git
-    version: "2.8.1"
+    version: "2.8.0+2"
   http_multi_server:
     dependency: transitive
     description:
@@ -453,10 +453,10 @@ packages:
     dependency: transitive
     description:
       name: path_provider_foundation
-      sha256: f234384a3fdd67f989b4d54a5d73ca2a6c422fa55ae694381ae0f4375cd1ea16
+      sha256: "4843174df4d288f5e29185bd6e72a6fbdf5a4a4602717eed565497429f179942"
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.0"
+    version: "2.4.1"
   path_provider_linux:
     dependency: transitive
     description:
