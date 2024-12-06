@@ -58,25 +58,20 @@ class StorageServiceHive implements StorageService {
   @override
   Future<T> load<T>(String key, T defaultValue) async {
     // A dynamic to hold the value we get from the Hive storage.
-    dynamic storedValue;
+    dynamic value;
     try {
-      storedValue = await _hiveBox.get(key, defaultValue: defaultValue);
-
+      value = await _hiveBox.get(key, defaultValue: defaultValue);
       debugPrint('Store LOAD ______________');
       debugPrint('  Store key     : $key');
       debugPrint('  Type expected : $T');
-      debugPrint('  Stored value  : $storedValue');
-      debugPrint('  Stored type   : ${storedValue.runtimeType}');
+      debugPrint('  Stored value  : $value');
+      debugPrint('  Stored type   : ${value.runtimeType}');
       debugPrint('  Default value : $defaultValue');
       debugPrint('  Default type  : ${defaultValue.runtimeType}');
       debugPrint('  Using WASM    : ${App.isRunningWithWasm}');
-
-      // Must use the sameTypes() here to compare generic type to target type.
-      final bool isNullableIntT = sameTypes<T, int?>();
-      final bool isIntT = sameTypes<T, int>();
-
       // Add workaround for hive WASM returning double instead of int, when
       // values saved to IndexedDb were int.
+      // See issue: https://github.com/IO-Design-Team/hive_ce/issues/46
       // In this reproduction sample we see this FAIL triggered when reloading
       // values from the DB.
       // We can reproduce this issue by running the sample as WASM build
@@ -85,21 +80,21 @@ class StorageServiceHive implements StorageService {
       // Without this special if case handling, we would get an error thrown.
       // This path is never entered on native VM or JS builds.
       if (App.isRunningWithWasm &&
-          storedValue != null &&
-          (storedValue is double) &&
-          (isNullableIntT || isIntT)) {
-        final T loaded = storedValue.round() as T;
-        debugPrint('  ** WASM Error : Expected int but got double, '
+          value != null &&
+          (value is double) &&
+          (sameTypes<T, int?>() || sameTypes<T, int>())) {
+        final T loaded = value.round() as T;
+        debugPrint('  ** WASM Issue : Expected int but got double, '
             'returning as int: $loaded');
         return loaded;
       } else {
-        return storedValue as T;
+        return value as T;
       }
     } catch (e, stackTrace) {
       debugPrint('Store LOAD ERROR ********');
       debugPrint('  Error message ...... : $e');
       debugPrint('  Store key .......... : $key');
-      debugPrint('  Store value ........ : $storedValue');
+      debugPrint('  Store value ........ : $value');
       debugPrint('  defaultValue ....... : $defaultValue');
       debugPrint('  Stacktrace ......... : $stackTrace');
       if (e is HiveError && e.message.contains('missing type adapter')) {
