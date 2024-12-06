@@ -17,10 +17,10 @@ dependencies:
   # This is a community fork that supports WASM-GC, by using package:web
   hive_ce: # any # ^2.8.0
     #path: ../hive_ce/hive
-    git:
-      url: https://github.com/rydmike/hive_ce.git # https://github.com/IO-Design-Team/hive_ce.git
-      ref: main # feature/wasm-num-fix
-      path: hive/
+    #git:
+    #  url: https://github.com/rydmike/hive_ce.git # https://github.com/IO-Design-Team/hive_ce.git
+    #  ref: main # feature/wasm-num-fix
+    #  path: hive/
 
   # Commonly used directories on host platform file systems, by Google (flutter.dev).
   # Used to get a working storage path for Hive on Windows. This may not be

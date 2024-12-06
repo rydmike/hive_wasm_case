@@ -17,10 +17,16 @@ abstract final class App {
   static const String keyIntNullable = 'B: intNullable';
   static const int? intDefaultNullable = null;
 
-  static const String keyDouble = 'C: doubleNotNullable';
+  static const String keyDoubleWhole = 'C: doubleWholeNotNullable';
+  static const double doubleWholeDefault = 0;
+
+  static const String keyDoubleWholeNullable = 'D: doubleWholeNullable';
+  static const double? doubleWholeNullableDefault = null;
+
+  static const String keyDouble = 'E: doubleNotNullable';
   static const double doubleDefault = 0.0;
 
-  static const String keyDoubleNullable = 'D: doubleNullable';
+  static const String keyDoubleNullable = 'F: doubleNullable';
   static const double? doubleDefaultNullable = null;
 
   static const String keyDoubleAlwaysNull = 'NULL: doubleAlwaysNull';

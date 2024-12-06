@@ -46,25 +46,41 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int? _intCounterNullable;
-  double? _doubleCounterNullable;
   int _intCounter = 0;
+
+  double? _doubleWholeCounterNullable;
+  double _doubleWholeCounter = 0.0;
+
+  double? _doubleCounterNullable;
   double _doubleCounter = 0.0;
+
   double? _doubleAlwaysNull;
 
   int? _loadIntCounterNullable;
-  double? _loadDoubleCounterNullable;
   int _loadIntCounter = 0;
+
+  double? _loadDoubleWholeCounterNullable;
+  double _loadDoubleWholeCounter = 0.0;
+
+  double? _loadDoubleCounterNullable;
   double _loadDoubleCounter = 0.0;
 
   Future<void> _incrementCounters() async {
     setState(() {
       _intCounterNullable = (_intCounterNullable ?? 0) + 1;
-      _doubleCounterNullable = (_doubleCounterNullable ?? 0) + 0.1;
       _intCounter = _intCounter + 1;
+      _doubleWholeCounterNullable = (_doubleWholeCounterNullable ?? 0) + 1;
+      _doubleWholeCounter = _doubleWholeCounter + 1;
+      _doubleCounterNullable = (_doubleCounterNullable ?? 0) + 0.1;
       _doubleCounter = _doubleCounter + 0.1;
     });
     await widget.store.save(App.keyInt, _intCounter);
     await widget.store.save(App.keyIntNullable, _intCounterNullable);
+    //
+    await widget.store.save(App.keyDoubleWhole, _doubleWholeCounter);
+    await widget.store
+        .save(App.keyDoubleWholeNullable, _doubleWholeCounterNullable);
+
     //
     await widget.store.save(App.keyDouble, _doubleCounter);
     await widget.store.save(App.keyDoubleNullable, _doubleCounterNullable);
@@ -77,6 +93,11 @@ class _MyHomePageState extends State<MyHomePage> {
     _loadIntCounter = await widget.store.load(App.keyInt, App.intDefault);
     _loadIntCounterNullable =
         await widget.store.load(App.keyIntNullable, App.intDefaultNullable);
+    // Load the tested counters of double and double? whole number types.
+    _loadDoubleWholeCounter =
+        await widget.store.load(App.keyDoubleWhole, App.doubleWholeDefault);
+    _loadDoubleWholeCounterNullable = await widget.store
+        .load(App.keyDoubleWholeNullable, App.doubleWholeNullableDefault);
     // Load the tested counters of double and double? types.
     _loadDoubleCounter =
         await widget.store.load(App.keyDouble, App.doubleDefault);
@@ -111,14 +132,18 @@ class _MyHomePageState extends State<MyHomePage> {
                 style: TextStyle(fontWeight: FontWeight.bold)),
             Text('A: int = $_intCounter'),
             Text('B: int nullable = $_intCounterNullable'),
-            Text('C: double $_doubleCounter'),
-            Text('D: double nullable = $_doubleCounterNullable'),
+            Text('C: double whole $_doubleWholeCounter'),
+            Text('D: double whole nullable = $_doubleWholeCounterNullable'),
+            Text('E: double $_doubleCounter'),
+            Text('F: double nullable = $_doubleCounterNullable'),
             const Text('\nLast loaded values:',
                 style: TextStyle(fontWeight: FontWeight.bold)),
             Text('A: int = $_loadIntCounter'),
             Text('B: int nullable = $_loadIntCounterNullable'),
-            Text('C: double = $_loadDoubleCounter'),
-            Text('D: double nullable = $_loadDoubleCounterNullable'),
+            Text('C: double whole = $_loadDoubleWholeCounter'),
+            Text('D: double whole nullable = $_loadDoubleWholeCounterNullable'),
+            Text('E: double = $_loadDoubleCounter'),
+            Text('F: double nullable = $_loadDoubleCounterNullable'),
             Text('NULL: double null = $_doubleAlwaysNull\n'),
             SizedBox(
               width: 300,
